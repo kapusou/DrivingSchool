@@ -1,0 +1,534 @@
+<!doctype html>
+<html class="x-admin-sm" lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>驾校预约练车管理系统登录</title>
+	<meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="stylesheet" th:href="@{/css/font.css}">
+	<link rel="stylesheet" th:href="@{/css/xadmin.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap-theme.min.css}">
+    <script type="text/javascript" th:src="@{/js/jquery/jquery.min.js}"></script>
+    <script th:src="@{/lib/layui/layui.js}" charset="utf-8"></script>
+    <script type="text/javascript" th:src="@{/js/xadmin.js}"></script>
+    <script type="text/javascript" th:src="@{/js/cookie.js}"></script>
+
+</head>
+<body class="login-bg">
+    
+    <div class="login layui-anim layui-anim-up">
+        <div class="message">驾校预约练车管理系统登录</div>
+        <div id="darkbannerwrap"></div>
+        
+        <form method="post" class="layui-form" >
+            <input id= "account" name="account" placeholder="用户名或邮箱"  type="text" lay-verify="required" class="layui-input" >
+            <hr class="hr15">
+            <input id="password" name="password" lay-verify="pass" placeholder="密码"  type="password" class="layui-input">
+            <hr class="hr15">
+            <div align="center">
+                <input type="radio"  name="role" value="1" title="学员" checked>
+                <input type="radio" name="role" value="3" title="教练">
+                <input type="radio" name="role" value="2" title="管理员">
+            </div>
+            <hr class="hr15">
+            <input value="登录" lay-submit lay-filter="login" style="width:100%;" type="submit">
+            <hr class="hr15">
+        </form>
+        <div class="layui-form-item" style="float: right">
+            <a href="#" data-toggle="modal" data-target="#myModal">忘记密码?</a>
+        </div>
+        <p>
+            <a href="#" data-toggle="modal" data-target="#myRegister" style="float: left">用户注册</a>
+        </p>
+        <hr class="hr20" >
+    </div>
+
+	
+    <!-- 忘记密码 -->
+    <div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+         data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog " style=" width: 400px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        找回密码
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">用户名:</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="resetAccount" name="resetAccount"
+                                   required lay-verify="required" class="layui-input" placeholder="用户名">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">邮箱号:</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="resetMail" name="resetMail"
+                                   required lay-verify="email" placeholder="邮箱号"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="input-group">
+                            <label class="layui-form-label">验证码:</label>
+                            <div class="layui-input-block">
+                                <input type="text" id="getcode" lay-verify="required" class="layui-input " style="width:140px;" placeholder="验证码"/>
+                            </div>
+                            <span class="form-group input-group-btn" style="padding-bottom: 7px">
+                             <button class="btn btn-default" id="getCheckCode" type="button">获取验证码</button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">密码:</label>
+                        <div class="layui-input-block">
+                            <input type="password" id="resetpassword" name="resetpassword"
+                                   required lay-verify="pass" placeholder="密码"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">确认:</label>
+                        <div class="layui-input-block">
+                            <input type="password" id="confirm" name="confirm"
+                                   required lay-verify="resetConfirmPass" placeholder="确认密码"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button id="submitbutton" type="button" class="layui-btn layui-btn-primary"
+                            data-toggle="resetPasswordModal" data-dismiss="modal" data-target="#resetPasswordModal">
+                        保存
+                    </button>
+                    <button type="button" class="layui-btn layui-btn-primary" data-dismiss="modal">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<!-- 用户注册 -->
+    <div class="modal" id="myRegister" tabindex="-1" role="dialog" aria-labelledby="registModalLabel" aria-hidden="true"
+         data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog " style=" width: 400px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="registModalLabel">
+                        用户注册
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">用户名:</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="registName" name="registName"
+                                   required lay-verify="required" class="layui-input" placeholder="用户名">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">邮箱号:</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="registMail" name="registMail"
+                                   required lay-verify="email" placeholder="邮箱号"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="input-group">
+                            <label class="layui-form-label">验证码:</label>
+                            <div class="layui-input-block">
+                                <input type="text" id="registCode" class="layui-input" lay-verify="required" style="width:140px;" placeholder="验证码"/>
+                            </div>
+                            <span class="form-group input-group-btn"  style="padding-bottom: 7px">
+                             <button class="btn btn-default" id="registCheckCode" type="button">获取验证码</button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">密码:</label>
+                        <div class="layui-input-block">
+                            <input type="password" id="registWord" name="registWord"
+                                   required lay-verify="pass" placeholder="密码"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">确认:</label>
+                        <div class="layui-input-block">
+                            <input type="password" id="registConfirm" name="confirm"
+                                   required lay-verify="registConfirmPass" placeholder="确认密码"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button id="registButton" type="button" class="layui-btn layui-btn-primary"
+                            data-toggle="registPasswordModal" data-dismiss="modal" data-target="#registPasswordModal">
+                        注册
+                    </button>
+                    <button type="button" class="layui-btn layui-btn-primary" data-dismiss="modal">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/lib/layui/layui.js}"></script>
+    <script th:src="@{/js/jquery/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <script th:src="@{/js/driversystem/common/mailCode.js}"></script>
+    <script th:src="@{/js/driversystem/common/verifyInput.js}"></script>
+    <script th:inline="javascript">var ctx = [[@{/}]]</script>
+    <script>
+        $(function  () {
+            layui.use('form', function(){
+              var form = layui.form;
+
+                //自定义验证规则
+                form.verify({
+                    pass: [/(.+){6,12}$/, '密码必须6到12位'],
+                    registConfirmPass: function(value){
+                        if($('#registWord').val()!=$('#registConfirm').val()){
+                            return '两次密码不一致';
+                        }
+                    },
+                    resetConfirmPass: function(value){
+                        if($('#resetpassword').val()!=$('#confirm').val()){
+                            return '两次密码不一致';
+                        }
+                    }
+                });
+
+              //监听提交
+              form.on('submit(login)', function(data){
+
+                  $.ajax({
+                      type: "POST",
+                      url: ctx + "login/login",
+                      data: JSON.stringify(data.field),
+                      // data: data,
+                      dataType: "json",
+                      contentType:"application/json",
+                      success: function(result){
+                          if(200==result.code){
+                              layer.msg(result.msg, {
+                                  time: 2000,
+                                  btn: ['返回']
+                              });
+                              if(result.role == 1) {
+                                  window.location.href=ctx + "student/index"
+                              } else if(result.role == 2) {
+                                  window.location.href=ctx +"admin/index"
+                              } else {
+                                  window.location.href=ctx +"teacher/index"
+                              }
+                          }else{
+                              // alert("账户或密码不正确！");
+                              layer.msg(result.msg, {
+                                  time: 2000,
+                                  btn: ['返回']
+                              });
+                              $('input[name="username"]').val("");
+                              $('input[name="password"]').val("");
+                          }
+                      }
+                  });
+
+                return false;
+              });
+            });
+
+            //忘记密码 模态框传参
+            $('#myModal').on('show.bs.modal', function (event) {
+                var modal = $(this);  //获得这个模态框。必不可少
+                var email = "";
+                var account = $("#account").val();//获取用户名或邮箱
+                var password = $("#password").val();//获取获取密码
+                var role = $("input[name='role']:checked").val()//获取获取密码
+                //判断是否是邮箱，将用户名和邮箱分别传到对应文本框中
+                var flag = checkEmail(account);
+                if(flag) {
+                    email = account;
+                    account = "";
+                }
+                //给模态框传值
+                $("#resetAccount").val(account);
+                $("#resetMail").val(email);
+                $("#resetpassword").val(password);
+            });
+
+            //用户注册 模态框传参
+            $('#myRegister').on('show.bs.modal', function (event) {
+                var modal = $(this);  //获得这个模态框
+                var email = "";
+                var account = $("#account").val();//获取用户名或邮箱
+                var password = $("#password").val();//获取获取密码
+                var role = $("input[name='role']:checked").val()//获取获取密码
+                //判断是否是邮箱，将用户名和邮箱分别传到对应文本框中
+                var flag = checkEmail(account);
+                if(flag) {
+                    email = account;
+                    account = "";
+                }
+                //给模态框传值
+                $("#registName").val(account);
+                $("#registMail").val(email);
+                $("#registWord").val(password);
+            });
+
+            //用户登录发送验证码
+            $("#getCheckCode").click(function () {
+                var email = $("#resetMail").val();
+                var account = $("#resetAccount").val();
+                var role = $("input[name='role']:checked").val();
+                var data= {
+                    account:account,
+                    email:email,
+                    role:role
+                };
+                // console.log(data);
+                if ($("#checkcodeMail").val()==0){
+                    layer.msg('请填写邮箱号', {
+                        time: 2000,
+                        btn: ['返回']
+                    });
+                    return;
+                } else if(!checkEmail(email)){
+                    layer.msg('邮箱格式不正确', {
+                        time: 2000,
+                        btn: ['返回']
+                    });
+                    return;
+                }
+                //发起验证码
+                getCode(data);
+                settime($("#getCheckCode"));
+            });
+
+            //用户注册发送验证码
+            $("#registCheckCode").click(function () {
+                var email = $("#registMail").val();
+                var account = $("#registName").val();
+                var role = $("input[name='role']:checked").val();
+                var data= {
+                    account:account,
+                    email:email,
+                    role:role
+                };
+                console.log(data);
+                if ($("#registMail").val()==0){
+                    layer.msg('请填写邮箱号', {
+                        time: 2000,
+                        btn: ['返回']
+                    });
+                    return;
+                } else if(!checkEmail(email)){
+                    layer.msg('邮箱格式不正确', {
+                        time: 2000,
+                        btn: ['返回']
+                    });
+                    return;
+                }
+                //发起验证码
+                getRegistCode(data);
+                settime($("#registCheckCode"));
+            });
+
+            //验证验证码
+            $("#submitbutton").click(function () {
+
+                if ($("#resetMail").val().length==0){
+                    layer.msg('请填写邮箱号', {
+                        time: 2000,
+                        btn: ['返回']
+                    });
+                    return;
+                }
+                if($("#getcode").val().length==0){
+                    layer.msg('请输入验证码', {
+                        time: 2000, //20s后自动关闭
+                        btn: ['好的']
+                    });
+                }
+                var password=$("#resetpassword").val();
+                var confirm=$("#confirm").val();
+                if (password==confirm){
+                    restPassword();
+                }
+                else {
+                    layer.msg('密码不一致', {
+                        time: 1000, //20s后自动关闭
+                        btn: ['好的']
+                    });
+                }
+
+            });
+
+            //注册码验证
+            $("#registButton").click(function () {
+
+                if ($("#registMail").val().length==0){
+                    layer.msg('请填写邮箱号', {
+                        time: 2000,
+                        btn: ['返回']
+                    });
+                    return;
+                }
+                if($("#registCode").val().length==0){
+                    layer.msg('请输入验证码', {
+                        time: 2000, //20s后自动关闭
+                        btn: ['好的']
+                    });
+                }
+                var password=$("#registWord").val();
+                var confirm=$("#registConfirm").val();
+                if (password==confirm){
+                    registAccount();
+                }
+                else {
+                    layer.msg('密码不一致', {
+                        time: 1000, //20s后自动关闭
+                        btn: ['好的']
+                    });
+                }
+
+            });
+
+            //获取注册用户邮箱验证码
+            function getRegistCode(data){
+                console.log(data);
+                $.ajax({
+                    url: ctx + "login/getRegistCode",
+                    type:"post",
+                    cache:false,
+                    contentType:"application/json",
+                    datatype:"json",
+                    data:JSON.stringify(data),
+                    success:function(result){
+                        layer.msg(result.msg, {
+                            time: 2000, //2s后自动关闭
+                        });
+                    }
+                    ,
+                    error:function(response){
+                        console.log("出错返回: " + response);
+                        console.log("出错数据: " + JSON.stringify(response));
+                    }
+                });
+
+            };
+
+            //获取找回密码邮箱验证码：这里先进行判断用户名和邮箱是否对应，如果不对应则不是一个账号
+            function getCode(data){
+                console.log(data);
+                $.ajax({
+                    url:"/login/getCode",
+                    type:"post",
+                    cache:false,
+                    contentType:"application/json",
+                    datatype:"json",
+                    data:JSON.stringify(data),
+                    success:function(result){
+                        layer.msg(result.msg, {
+                            time: 2000, //2s后自动关闭
+                        });
+                    }
+                    ,
+                    error:function(response){
+                        console.log("出错返回: " + response);
+                        console.log("出错数据: " + JSON.stringify(response));
+                    }
+                });
+            };
+
+            //重置密码
+            function restPassword() {
+
+                var json = {
+                    account:$("#resetAccount").val(),
+                    email:$("#resetMail").val(),
+                    emailCode:$("#getcode").val(),
+                    role: $("input[name='role']:checked").val(),
+                    // password:hex_md5($("#resetpassword").val().trim())
+                    password:$("#resetpassword").val()
+                };
+
+                console.log(json);
+                $.ajax({
+                    url: ctx + "login/resetPassword",
+                    type:"post",
+                    cache:false,
+                    contentType:"application/json",
+                    datatype:"json",
+                    data:JSON.stringify(json),
+                    success:function(result){
+                        layer.msg(result.msg, {
+                            time: 2000, //2s后自动关闭
+                        });
+                    },
+                    error:function(response){
+                        // console.log("出错返回: " + response);
+                        // console.log("出错数据: " + JSON.stringify(response));
+                    }
+                });
+
+            };
+
+            //注册用户
+            function registAccount() {
+
+                var json = {
+                    account:$("#registName").val(),
+                    email:$("#registMail").val(),
+                    emailCode:$("#registCode").val(),
+                    role: $("input[name='role']:checked").val(),
+                    // password:hex_md5($("#resetpassword").val().trim())
+                    password:$("#registWord").val()
+                };
+
+                // console.log(json);
+                $.ajax({
+                    url: ctx + "/login/regist",
+                    type:"post",
+                    cache:false,
+                    contentType:"application/json",
+                    datatype:"json",
+                    data:JSON.stringify(json),
+                    success:function(result){
+                        layer.msg(result.msg, {
+                            time: 2000, //2s后自动关闭
+                        });
+                    },
+                    error:function(response){
+                        console.log("出错返回: " + response);
+                        console.log("出错数据: " + JSON.stringify(response));
+                    }
+                });
+
+            }
+        });
+    </script>
+
+    <!-- 底部结束 -->
+
+</body>
+</html>

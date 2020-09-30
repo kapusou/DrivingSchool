@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html class="x-admin-sm" lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+  
+  <head>
+    <meta charset="UTF-8">
+    <title>预约练车</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" th:href="@{/css/font.css}">
+    <link rel="stylesheet" th:href="@{/css/xadmin.css}">
+    <script type="text/javascript" th:src="@{/js/jquery/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/lib/layui/layui.js}" charset="utf-8"></script>
+    <script type="text/javascript" th:src="@{/js/xadmin.js}"></script>
+    <script type="text/javascript" th:src="@{/js/cookie.js}"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <!--多层结构时，一次显示路径节点-->
+        <!--<a href="">首页</a>-->
+        <!--<a href="">演示</a>-->
+        <a>
+          <cite>预约练车</cite></a>
+      </span>
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+    </div>
+    <div class="x-body">
+      <input type="text" hidden="hidden" id="stuId" th:value="${student.stuId}"/>
+      <div class="layui-form"  align="center">
+        <div class="layui-form-item">
+          <div class="layui-inline">
+            <label class="layui-form-label">预约时间：</label>
+            <div class="layui-input-inline">
+              <input type="text" class="layui-input" id="dateRange" placeholder=" - " style="width: 260px" autocomplete="off">
+            </div>
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <div class="layui-inline">
+            <label class="layui-form-label">科目选择：</label>
+            <div class="layui-input-inline">
+              <select name="subject" id="subject">
+                <option value="">请选择项目</option>
+                <option value="科目二">科目二</option>
+                <option value="科目三">科目三</option>
+                <!--<optgroup label="科目三">
+                  <option value="倒车入库">倒车入库</option>
+                  <option value="侧方位停车">侧方位停车</option>
+                  <option value="坡道起步">坡道起步</option>
+                  <option value="直角转弯">直角转弯</option>
+                  <option value="S曲线">S曲线</option>
+                </optgroup>
+                <optgroup label="科目三">
+                  <option value="灯光模拟">灯光模拟</option>
+                  <option value="道路模拟">道路模拟</option>
+                  <option value="变道超车">变道超车</option>
+                  <option value="直线行驶">直线行驶</option>
+                </optgroup>-->
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <div class="layui-inline">
+            <label class="layui-form-label">选择教练：</label>
+            <div class="layui-input-inline">
+              <select name="teaId" id="teaId" class="form-control1">
+                <option value="">请选择教练</option>
+                <option th:each="teacher,tea:${teacherList}" th:value="${teacher.teaId}" th:text="${teacher.teaAccount}"></option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <div class="layui-inline">
+            <button id="appointment" type="button" class="layui-btn layui-btn-radius layui-btn-normal">&nbsp;预约&nbsp;</button>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+    <script th:inline="javascript">
+      var ctx = [[@{/}]]
+    </script>
+    <script>
+      layui.use('laydate', function(){
+        var laydate = layui.laydate;
+
+          //日期范围
+          laydate.render({
+              elem: '#dateRange',
+              range: true,
+              type: 'datetime',
+              min: 0,
+
+          });
+      });
+
+      //监听提交
+      $("#appointment").click(function (data) {
+          var dateRange = $("#dateRange").val();
+          var subject = $("#subject").val();
+          var teaId = $("#teaId").val();
+          var stuId = $("#stuId").val();
+          var data = {
+              dateRange: dateRange,
+              subject: subject,
+              teaId: teaId,
+              stuId: stuId
+          };
+
+          $.ajax({
+              type: "POST",
+              url: ctx + "student/appointTeacher",
+              data: JSON.stringify(data),
+              // data: data,
+              dataType: "json",
+              contentType:"application/json",
+              success: function(result){
+                  if(200==result.code){
+                      layer.alert(result.msg, {icon: 6},function () {
+                          //重新加载页面
+                          location.reload();
+                      });
+                  }else{
+                      // alert("账户或密码不正确！");
+                      layer.msg(result.msg, {
+                          time: 2000,
+                          btn: ['返回']
+                      });
+                  }
+              }
+          });
+      })
+
+    </script>
+  </body>
+
+</html>

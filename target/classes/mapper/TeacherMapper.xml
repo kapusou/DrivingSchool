@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.llb.mapper.TeacherMapper">
+    <!--查找所有教练-->
+    <select id="findAllTeacher" resultType="Teacher">
+        SELECT *
+        FROM teacher
+    </select>
+
+    <!--上下车记录-->
+    <select id="findAppointmentSXCJL" resultType="map" parameterType="String">
+         select * from (
+         SELECT
+        (select b.stu_name from student b where a.stu_id=b.stu_id) as xsmc,
+        (select b.tea_name from teacher b where a.tea_id=b.tea_id) as jlmc,
+        a.subject,DATE_FORMAT(a.boarding_time,'%Y-%m-%d %H:%i:%S') as boarding_time,DATE_FORMAT(a.alighting_time,'%Y-%m-%d %H:%i:%S') as alighting_time
+        FROM appointment a
+        <where>
+         a.stu_star is not null
+        and a.appointment_flag = '5'
+        <if test="teaId != null">
+          and  a.tea_id=#{teaId}
+        </if>
+        </where>) a
+        <where>
+            <if test="xsmc != null">
+                and a.xsmc =#{xsmc}
+            </if>
+            <if test="jlmc != null">
+                and a.jlmc =#{jlmc}
+            </if>
+        </where>
+    </select>
+
+    <!--查询上下车记录-->
+    <select id="findTeacher" resultType="com.llb.entity.Teacher" parameterType="String">
+        SELECT *
+        FROM teacher
+        WHERE tea_account = #{account} OR tea_email = #{account}
+    </select>
+
+    <!--通过姓名查找教练-->
+    <select id="findTeacher" resultType="com.llb.entity.Teacher" parameterType="String">
+        SELECT *
+        FROM teacher
+        WHERE tea_account = #{account} OR tea_email = #{email}
+    </select>
+
+    <!--通过id查找教练-->
+    <select id="findTeacherById" resultType="com.llb.entity.Teacher" parameterType="String">
+        SELECT *
+        FROM teacher
+        WHERE tea_id = #{teaId}
+    </select>
+
+    <!--通过账号和邮箱号查找教练-->
+    <select id="findTeaByAccAndPwd" resultType="com.llb.entity.Teacher" parameterType="String">
+        SELECT *
+        FROM teacher
+        WHERE tea_account = #{account} AND tea_email = #{email}
+    </select>
+
+    <!--通过邮箱查找教练-->
+    <select id="findTeacherByEmail" resultType="Teacher" parameterType="String">
+        SELECT *
+        FROM teacher
+        WHERE tea_email = #{teaEmail}
+    </select>
+
+    <!--修改密码-->
+    <update id="updateTeaPwd" parameterType="String">
+        UPDATE teacher
+        SET tea_pwd = #{teacherPwd}
+        WHERE tea_email = #{teaEmail}
+    </update>
+
+    <!--修改教练信息-->
+    <update id="editTeacher" parameterType="Teacher">
+        UPDATE teacher
+        <trim prefix="set" suffixOverrides=",">
+            <if test="teaAccount!=null and teaAccount != ''">tea_account=#{teaAccount},</if>
+            <if test="teaName!=null and teaName != ''">tea_name=#{teaName},</if>
+            <if test="teaEmail!=null and teaEmail != ''">tea_email=#{teaEmail},</if>
+            <if test="teaPwd!=null and teaPwd != ''">tea_pwd=#{teaPwd},</if>
+            <if test="teaSex!=null and teaSex != ''">tea_sex=#{teaSex},</if>
+            <if test="teaBirthday!=null and teaBirthday != ''">tea_birthday=#{teaBirthday},</if>
+            <if test="teaAddress!=null and teaAddress != ''">tea_address=#{teaAddress},</if>
+            <if test="teaPhone!=null and teaPhone != ''">tea_phone=#{teaPhone}</if>
+        </trim>
+        WHERE tea_id = #{teaId}
+    </update>
+
+    <!--保存教练信息-->
+    <insert id="saveTeacher" parameterType="Admin">
+        INSERT INTO teacher
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="teaId != null">
+                tea_id,
+            </if>
+            <if test="teaAccount != null">
+                tea_account,
+            </if>
+            <if test="teaName != null">
+                tea_name,
+            </if>
+            <if test="teaEmail != null">
+                tea_email,
+            </if>
+            <if test="teaPwd != null">
+                tea_pwd,
+            </if>
+            <if test="teaSex != null">
+                tea_sex,
+            </if>
+            <if test="teaBirthday != null and teaBirthday != '' ">
+                tea_birthday,
+            </if>
+            <if test="teaAddress != null">
+                tea_address,
+            </if>
+            <if test="teaPhone != null">
+                tea_phone,
+            </if>
+            <if test="teaCreatedate != null">
+                tea_createdate,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="teaId != null">
+                #{teaId},
+            </if>
+            <if test="teaAccount != null">
+                #{teaAccount},
+            </if>
+            <if test="teaName != null">
+                #{teaName},
+            </if>
+            <if test="teaEmail != null">
+                #{teaEmail},
+            </if>
+            <if test="teaPwd != null">
+                #{teaPwd},
+            </if>
+            <if test="teaSex != null">
+                #{teaSex},
+            </if>
+            <if test="teaBirthday != null and teaBirthday != '' ">
+                #{teaBirthday},
+            </if>
+            <if test="teaAddress != null">
+                #{teaAddress},
+            </if>
+            <if test="teaPhone != null">
+                #{teaPhone},
+            </if>
+            <if test="teaCreatedate != null">
+                STR_TO_DATE(#{teaCreatedate},'%Y-%m-%d %H:%i:%s'),
+            </if>
+        </trim>
+    </insert>
+
+    <!--查询所有教练分页)-->
+    <select id="teacherList" resultType="Map" parameterType="String">
+        SELECT t.tea_id,
+        t.tea_account , t.tea_name, t.tea_email, t.tea_pwd, t.tea_sex, DATE_FORMAT(t.tea_birthday,'%Y-%m-%d') as tea_birthday,
+        t.tea_address, t.tea_phone, DATE_FORMAT(t.tea_createdate,'%Y-%m-%d %H:%i:%S') as tea_createdate, t.tea_Subject
+        FROM teacher t
+        <where>
+            <if test="teaAccount != null">
+                t.tea_account like concat('%',#{teaAccount},'%')
+            </if>
+        </where>
+    </select>
+
+    <!--删除教练-->
+    <select id="deleteTeacher" parameterType="String">
+        DELETE
+        FROM teacher
+        WHERE tea_id = #{teaId}
+    </select>
+
+</mapper>

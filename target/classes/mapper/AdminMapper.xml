@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.llb.mapper.AdminMapper">
+
+    <!--通过用户名或邮箱查找管理员-->
+    <select id="findAdmin" resultType="com.llb.entity.Admin" parameterType="String">
+        SELECT *
+        FROM admin
+        WHERE admin_account = #{account} OR admin_mail = #{account}
+    </select>
+
+    <!--通过用户名或邮箱查找管理员-->
+    <select id="findAdmin" resultType="com.llb.entity.Admin" parameterType="String">
+        SELECT *
+        FROM admin
+        WHERE admin_account = #{account} OR admin_mail = #{email}
+    </select>
+
+    <!--通过管理员id查找管理员-->
+    <select id="findAdminById" resultType="com.llb.entity.Admin" parameterType="String">
+        SELECT *
+        FROM admin
+        WHERE admin_id = #{adminId}
+    </select>
+
+    <!--查询评价-->
+    <select id="findAppointmentById" resultType="map" parameterType="String">
+        select * from (
+        SELECT
+        (select b.stu_name from student b where a.stu_id=b.stu_id) as xsmc,
+        (select b.tea_name from teacher b where a.tea_id=b.tea_id) as jlmc,
+        a.`subject`,
+        DATE_FORMAT(a.appointment_start,'%Y-%m-%d %H:%i:%s') as appointment_start,
+        DATE_FORMAT(a.appointment_end,'%Y-%m-%d %H:%i:%s') as appointment_end ,a.stu_star,a.stu_content,a.tea_content
+        FROM appointment a<where>a.stu_star is not null
+        and a.
+        appointment_flag = '5'
+    </where>) a
+    <where>
+    0=0
+        <if test="xsmc != null">
+            and a.xsmc =#{xsmc}
+        </if>
+        <if test="jlmc != null">
+            and a.jlmc =#{jlmc}
+        </if>
+    </where>
+    </select>
+
+    <!--通过用户名和邮箱查找管理员-->
+    <select id="findAdminByAccAndMail" resultType="com.llb.entity.Admin" parameterType="String">
+        SELECT *
+        FROM admin
+        WHERE admin_account = #{account} AND admin_mail = #{email}
+    </select>
+
+    <!--根据邮箱查询管理员-->
+    <select id="findAdminByEmail" parameterType="String" resultType="Admin">
+        SELECT *
+        FROM admin
+        WHERE admin_mail = #{adminEmail}
+    </select>
+
+    <!--修改密码-->
+    <update id="updateAdminPwd" parameterType="String">
+        UPDATE admin
+        SET admin_pwd = #{adminPwd}
+        WHERE admin_mail = #{adminEmail}
+    </update>
+
+    <!--保存管理员信息-->
+    <insert id="saveAdmin" parameterType="Admin">
+        INSERT INTO admin
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="adminId != null">
+                admin_id,
+            </if>
+            <if test="adminAccount != null">
+                admin_account,
+            </if>
+            <if test="adminPwd != null">
+                admin_pwd,
+            </if>
+            <if test="adminMail != null">
+                admin_mail,
+            </if>
+            <if test="adminCreatedate != null">
+                admin_createdate,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="adminId != null">
+                #{adminId},
+            </if>
+            <if test="adminAccount != null">
+                #{adminAccount},
+            </if>
+            <if test="adminPwd != null">
+                #{adminPwd},
+            </if>
+            <if test="adminMail != null">
+                #{adminMail},
+            </if>
+            <if test="adminCreatedate != null">
+                #{adminCreatedate},
+            </if>
+        </trim>
+    </insert>
+
+    <!--修改管理员信息-->
+    <update id="updateAdmin" parameterType="Admin">
+        UPDATE admin
+        <trim prefix="set" suffixOverrides=",">
+            <if test="adminAccount!=null">admin_account=#{adminAccount},</if>
+            <if test="adminPwd!=null">admin_pwd=#{adminPwd},</if>
+            <if test="adminMail!=null">admin_mail=#{adminMail},</if>
+        </trim>
+        WHERE admin_id = #{adminId}
+    </update>
+
+    <!--查询所有管理员-->
+    <select id="findAllAdmin" parameterType="String" resultType="Map">
+        SELECT admin_id, admin_account, admin_mail, admin_pwd, DATE_FORMAT(admin_createdate,'%Y-%m-%d %H:%i:%s') as admin_createdate
+        FROM admin
+        <where>
+            <if test="account != null">
+                admin_account like CONCAT('%',CONCAT(#{account},'%'))
+            </if>
+        </where>
+    </select>
+
+    <!--根据id删除管理员-->
+    <select id="deleteAdmin" parameterType="String">
+        DELETE
+        FROM admin
+        WHERE admin_id = #{adminId}
+    </select>
+
+    <!--根据查找所有预约记录(分页查询)-->
+    <select id="findAllAppoint" parameterType="String" resultType="Map">
+        SELECT a.id,
+        t.tea_id,
+        s.stu_name,
+        t.tea_name,
+        a.subject,
+        DATE_FORMAT(a.appointment_start,'%Y-%m-%d %H:%i:%s') as appointment_start,
+        DATE_FORMAT(a.appointment_end,'%Y-%m-%d %H:%i:%s') as appointment_end,
+        DATE_FORMAT(a.boarding_time,'%Y-%m-%d %H:%i::%s') as boarding_time,
+        DATE_FORMAT(a.alighting_time,'%Y-%m-%d %H:%i:%s') as alighting_time,
+        a.stu_star,
+        a.stu_content,
+        a.tea_content,
+        a.appointment_flag,
+        DATE_FORMAT(a.create_date,'%Y-%m-%d %H:%i:%s') as create_date
+        FROM appointment a
+          LEFT JOIN teacher t
+          ON a.tea_id = t.tea_id
+          LEFT JOIN student s
+          ON a.stu_id = s.stu_id
+        <where>
+            <if test="appointmentStart!=null and appointmentStart!=''">
+                <![CDATA[
+                    AND	DATE_FORMAT(a.appointment_start, '%Y-%m-%d')>= DATE_FORMAT(#{appointmentStart}, '%Y-%m-%d')
+                ]]>
+            </if>
+            <if test="appointmentEnd!=null and appointmentEnd!=''">
+                <![CDATA[
+                    AND	DATE_FORMAT(a.appointment_end, '%Y-%m-%d')<= DATE_FORMAT(#{appointmentEnd}, '%Y-%m-%d')
+                ]]>
+            </if>
+            <if test="subject!=null and subject!=''">
+                AND a.subject like concat('%',#{subject},'%')
+            </if>
+            <if test="teaName!=null and teaName!=''">
+                AND t.tea_name like concat('%',#{teaName},'%')
+            </if>
+            <if test="stuName!=null and stuName!=''">
+                AND s.stu_name like concat('%',#{stuName},'%')
+            </if>
+        </where>
+        ORDER BY a.create_date DESC
+    </select>
+</mapper>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html class="x-admin-sm" lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+  
+  <head>
+    <meta charset="UTF-8">
+    <title>车辆信息管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" th:href="@{/css/font.css}">
+    <link rel="stylesheet" th:href="@{/css/xadmin.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/lib/layui/css/layui.css}">
+    <script type="text/javascript" th:src="@{/js/jquery/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/lib/layui/layui.js}" charset="utf-8"></script>
+    <script type="text/javascript" th:src="@{/js/xadmin.js}"></script>
+    <script type="text/javascript" th:src="@{/js/cookie.js}"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <!--<a href="">首页</a>-->
+        <!--<a href="">演示</a>-->
+      </span>
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+    </div>
+    <div class="x-body">
+      <!--<input type="text" hidden="hidden" id="stuId" th:value="${session.student.stuId}"/>-->
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so" action="javascript:;">
+            <input type="text" name="account" id="account" placeholder="请输入账号" autocomplete="off" class="layui-input">
+            <button class="layui-btn"  lay-submit="" lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+
+      <!--表格显示-->
+      <table class="layui-hide" id="carList" lay-filter="carList"></table>
+
+      <!--表格上方操作-->
+      <script type="text/html" id="complain_toolbar">
+        <div class="layui-btn-container" id="layerDemo">
+          <button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delBatchAll"><i class="layui-icon"></i>批量删除</button>
+          <button class="layui-btn layui-btn-sm" data-method="notice" lay-event="add"><i class="layui-icon"></i>添加</button>
+        </div>
+      </script>
+      <!--表格下方操作-->
+      <script type="text/html" id="operateTable">
+        <!--<a class="layui-btn layui-btn-xs" lay-event="detail" >查看</a>-->
+        <a class="layui-btn layui-btn-xs" lay-event="showDetail" data-toggle="modal" data-target="#showStuDetail" >查看详情</a>
+        <!--<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del" >删除</a>-->
+      </script>
+    </div>
+
+    <!-- 显示学员详细信息 -->
+    <div class="modal" id="showStuDetail" tabindex="-1" role="dialog" aria-labelledby="showStudentInfoModal" aria-hidden="true"
+         data-backdrop="static" data-keyboard="false">
+      <div class="modal-dialog " style=" width: 450px">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+              &times;
+            </button>
+            <h4 class="modal-title" id="showStudentInfoModal">
+              编辑车辆信息
+            </h4>
+          </div>
+          <div class="modal-body" style=" width: 300px">
+            <form class="layui-form" action="">
+              <input type="text" hidden="hidden" id="carId"/>
+              <div class="layui-form-item">
+                <label class="layui-form-label">教练:</label>
+                <div class="layui-input-block">
+                  <input id="carAccount" type="text" name="carAccount" lay-verify="required" placeholder="请输入教练id" class="layui-input" style=" width: 300px">
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <label class="layui-form-label">车牌:</label>
+                <div class="layui-input-block">
+                  <input id="carNumber" type="text" name="carNumber" placeholder="请输入车牌号" class="layui-input" style=" width: 300px">
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <label class="layui-form-label">车辆类型:</label>
+                <div class="layui-input-block">
+                  <input id="carType" type="text" name="carType" lay-verify="required" placeholder="请输入车辆类型" class="layui-input" style=" width: 300px">
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <label class="layui-form-label">练车日期:</label>
+                <div class="layui-input-block">
+                  <input type="text" class="layui-input" id="startTime" placeholder="yyyy-MM-dd">
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button id="editStudent" type="button" class="layui-btn layui-btn-primary"
+                        data-toggle="stuContentModal" data-dismiss="modal" data-target="#showStudentInfoModal" >
+                  确定
+                </button>
+              <button type="button" class="layui-btn layui-btn-primary" data-dismiss="modal">
+                取消
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    </div>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <script th:src="@{/lib/layui/layui.js}" charset="utf-8"></script>
+    <script th:inline="javascript">
+      var ctx = [[@{/}]]
+    </script>
+    <script type="text/javascript" th:inline="none">
+      function cardRuleId(){
+        $.ajax({
+          type: "post",
+          url: ctx + "admin/find",
+          dataType: "json",
+          contentType:"application/json",
+          success: function (datas) {
+            // console.log("教练信息");
+            // console.log(datas);
+            $("#cardRuleId").empty();
+            if(datas.length>0){
+              var table = document.getElementById('cardRuleId');
+              var html = "";
+              // console.log(table);
+              // console.log($("#cardRuleId").val());
+              for (var i = 0; i < datas.length; i++) {
+                var item=datas[i];
+                //拼接表格
+                console.log(item.teaName);
+                html += '<option value='+item.teaId+'>'+item.teaName+'</option>'
+              }
+              // html += '</select>';
+              table.innerHTML = '';
+              table.innerHTML = html;
+            }else {
+              $("#cardRuleId").empty();//清空下拉框
+              $("#cardRuleId").append("<option value=''>--请新建规则--</option>");
+            }
+            // form.render();//注意渲染页面表单，否则不显示数据
+            // layui.form.render("select");
+          },
+          error: function (response) {
+            console.log("出错返回: " + response);
+            console.log("出错数据: " + JSON.stringify(response));
+          }
+        })
+      }
+      layui.use(['laydate', 'form', 'table'], function() {
+          var form = layui.form;
+          var laydate = layui.laydate;
+          var table = layui.table;
+
+        var active = {
+
+          notice: function() {
+            //示范一个公告层
+            var index = layer.open({
+              type: 1//0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层)
+              ,title: "添加车辆信息" //不显示标题栏
+              ,closeBtn: false
+              ,area: ['500px','450px']//定义宽高
+              ,shade: 0.8//遮幕
+              ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
+              ,btn: ['保存', '取消']
+              ,btnAlign: 'c'//按钮排列：居中对齐
+              ,moveType: 1 //拖拽模式，0或者1
+              ,content:"<div class=\"layui-form-item\">\n" +
+                      "                <label class=\"layui-form-label\">教练:</label>\n" +
+                      "                <div class=\"layui-input-block\">\n" +// onclick='cardRuleId()'
+                      "                  <select id=\"cardRuleId\">\n" +
+                      "                  </select>"+
+                      // "                  <input id=\"carAccount1\" type=\"text\" name=\"carAccount\" lay-verify=\"required\" placeholder=\"请输入教练id\" class=\"layui-input\" style=\" width: 300px\">\n" +
+                      "                </div>\n" +
+                      "              </div>\n" +
+                      "              <div class=\"layui-form-item\">\n" +
+                      "                <label class=\"layui-form-label\">车牌:</label>\n" +
+                      "                <div class=\"layui-input-block\">\n" +
+                      "                  <input id=\"carNumber1\" type=\"text\" name=\"carNumber\" placeholder=\"请输入车牌号\" class=\"layui-input\" style=\" width: 300px\">\n" +
+                      "                </div>\n" +
+                      "              </div>\n" +
+                      "              <div class=\"layui-form-item\">\n" +
+                      "                <label class=\"layui-form-label\">车辆类型:</label>\n" +
+                      "                <div class=\"layui-input-block\">\n" +
+                      "                  <input id=\"carType1\" type=\"text\" name=\"carType\" lay-verify=\"required\" placeholder=\"请输入车辆类型\" class=\"layui-input\" style=\" width: 300px\">\n" +
+                      "                </div>\n" +
+                      "              </div>\n" +
+                      "              <div class=\"layui-form-item\">\n" +
+                      "                <label class=\"layui-form-label\">练车日期:</label>\n" +
+                      "                <div class=\"layui-input-block\">\n" +
+                      "                  <input type=\"text\" class=\"layui-input\" id=\"startTime1\" placeholder=\"yyyy-MM-dd\" style=\" width: 300px\">\n" +
+                      "                </div>\n" +
+                      "              </div>"+
+                      "              <div class=\"layui-form-item\">\n" +
+                      "                <label class=\"layui-form-label\">车辆生产日期:</label>\n" +
+                      "                <div class=\"layui-input-block\">\n" +
+                      "                  <input type=\"text\" class=\"layui-input\" id=\"car_productDate1\" placeholder=\"yyyy-MM-dd\" style=\" width: 300px\">\n" +
+                      "                </div>\n" +
+                      "              </div>"
+              ,
+              success: function(layero, index){
+                // console.log(layero, index);
+                // form.render('select');
+                $.ajax({
+                  type: "post",
+                  url: ctx + "admin/find",
+                  dataType: "json",
+                  contentType:"application/json",
+                  success: function (datas) {
+                    console.log("**********************");
+                    console.log(datas);
+                    if(datas.length>0){
+                      $("#cardRuleId").empty();//清空下拉框
+                      $("#cardRuleId").append("<option value=''>--请选择--</option>");
+                      for(var i=0;i<datas.length;i++){
+                        var item=datas[i];
+                        console.log(item.teaName);
+                        $("#cardRuleId").append("<option value="+item.teaId+">"+item.teaName+"</option>");
+                      }
+                    }else {
+                      $("#cardRuleId").empty();//清空下拉框
+                      $("#cardRuleId").append("<option value=''>--请新建规则--</option>");
+                    }
+                    //form.render();//注意渲染页面表单，否则不显示数据
+                    form.render("select");
+                  },
+                  error: function (response) {
+                    console.log("出错返回: " + response);
+                    console.log("出错数据: " + JSON.stringify(response));
+                  }
+                })
+              },
+              yes: function (index, layero) {
+                console.log('yes');
+                var options = $("#cardRuleId option:selected");
+                var teaId = options.val();
+                // var carAccount = $("#carAccount1").val();
+                var carNumber = $("#carNumber1").val();
+                var carType = $("#carType1").val();
+                var startTime = $("#startTime1").val();
+                var car_productDate = $("#car_productDate1").val();
+                var data = {teaId:teaId,carNumber:carNumber,carType:carType,startTime:startTime,car_productDate:car_productDate};
+                // console.log(data)
+
+                  $.ajax({
+                    type: "post",
+                    url: ctx + "admin/addCar",
+                    data:JSON.stringify(data),
+                    dataType: "json",
+                    contentType:"application/json",
+                    success: function (result) {
+                      layer.msg(result.msg, {
+                        time: 2000,
+                        btn: ['返回']
+                      });
+                    },
+                    error: function (response) {
+                      console.log("出错返回: " + response);
+                      console.log("出错数据: " + JSON.stringify(response));
+                    }
+                  })
+                  layer.close(index);
+                //重新加载页面
+                location.reload();
+                // }
+              },
+              btn2: function (index, layero) {
+                // console.log('btn2');
+              }
+            })
+          }}
+
+        // cardRuleId();
+          //常规用法
+          laydate.render({
+              elem: '#startTime',
+              trigger: 'click'
+          });
+
+          //渲染表格
+          table.render({
+              elem: '#carList',
+              url: ctx + 'admin/findAllCar',
+              limits: [5, 10, 20, 30, 40, 50, 60, 70, 80, 90],
+              toolbar: '#complain_toolbar', //开启头部工具栏，并为其绑定左侧模板
+              response: {
+                  statusCode: 200, //成功的状态码，默认：0
+                  statusName: 'code',// 对应 code
+                  msgName: 'msg', // 对应 msg
+                  countName: 'count', // 对应 count
+                  dataName: 'data'  // 对应 data
+              }
+              , cols: [[
+                  {type: 'checkbox'},
+                  {field: 'car_id', title: 'car_id', hide: true},    //hide:true    隐藏列
+                  {field: 'tea_account', title: 'tea_account', hide: true},    //hide:true    隐藏列
+                  {field: 'car_number', title: '车牌号'},
+                  {field: 'tea_name', title: '教练员'},
+                  {field: 'tea_email', title: '联系邮箱'},
+                  {field: 'car_type', title: '车辆类型'},
+                  {field: 'start_time', title: '练车时间'},  //TODO：此列可以不要
+                  {field: 'car_productDate', title: '车辆生产日期'},
+                  {fixed: 'right', title: '操作', toolbar: '#operateTable'}
+              ]]
+              , page: true
+              ,done: function (res, curr, count) {
+              // $("[data-field='stu_sex']").children().each(function(){
+              //     if($(this).text()=='1'){
+              //         $(this).text("男")
+              //     }else if($(this).text()=='0'){
+              //         $(this).text("女")
+              //     }
+              // });
+            }
+          });
+          //搜索按钮事件
+          form.on('submit(search)', function (data) {
+              table.reload('carList', {
+                  where: data.field,
+                  page: {
+                      curr: 1 //重新从第 1 页开始
+                  }
+              });
+          });
+
+          //头工具栏事件
+          table.on('toolbar(carList)', function(obj){
+              var checkStatus = table.checkStatus(obj.config.id);
+              // console.log(checkStatus);
+
+
+              switch(obj.event){
+                  case 'delBatchAll':
+                      if(checkStatus.data.length==0){
+                          parent.layer.msg('请先选择要删除的数据行！', {icon: 2});
+                          return ;
+                      }
+
+                      //获得选中的id
+                      var carIds = "";
+                      for(var i=0;i<checkStatus.data.length;i++){
+                        carIds += checkStatus.data[i].car_id+",";
+                      }
+                      parent.layer.msg('删除中...', {icon: 16,shade: 0.3,time:500});
+
+                      var data={carIds:carIds};
+                      $.ajax({
+                          url: ctx + "admin/deleteBatchCars",
+                          type: "post",
+                          cache: false,
+                          contentType: "application/json",
+                          datatype: "json",
+                          data: JSON.stringify(data),
+                          success: function (result) {
+                              if(200==result.code){
+                                  layer.alert(result.msg, {icon: 6},function () {
+                                      //重新加载页面
+                                      location.reload();
+                                  });
+                              }else{
+                                  layer.msg(result.msg, {
+                                      time: 2000,
+                                      btn: ['返回']
+                                  });
+                              }
+                          },
+                          error: function (response) {
+                              console.log("出错返回: " + response);
+                              console.log("出错数据: " + JSON.stringify(response));
+                          }
+                      });
+                      break;
+              };
+          });
+
+          //监听工具条
+          table.on('tool(carList)', function (obj) {
+              var data = obj.data;
+
+              if (obj.event === 'del') {
+                  layer.confirm('真的删除该条数据吗？', function (index) {
+                      // obj.del();
+                      var carId = data.car_id;
+                      //删除行数据
+                      $.ajax({
+                          url: ctx + "admin/deleteCar",
+                          type: "post",
+                          cache: false,
+                          contentType: "application/json",
+                          datatype: "json",
+                          data: carId,
+                          success: function (result) {
+                              if(200==result.code){
+                                  layer.alert(result.msg, {icon: 6},function () {
+                                      // 获得frame索引
+                                      var index = parent.layer.getFrameIndex(window.name);
+                                      //关闭当前frame
+                                      parent.layer.close(index);
+                                      //重新加载页面
+                                      parent.location.reload();
+                                  });
+                              }else{
+                                  layer.alert(result.msg, {icon: 5},function (index) {
+                                      layer.close(index);
+                                  });
+                              }
+                          },
+                          error: function (response) {
+                              console.log("出错返回: " + response);
+                              console.log("出错数据: " + JSON.stringify(response));
+                          }
+                      });
+                      layer.close(index);
+                  });
+              } else if (obj.event === 'showDetail') {
+
+                  //参数传到模态框
+                  $("#carId").val(data.car_id);
+                  $("#carAccount").val(data.tea_account);
+                  $("#carNumber").val(data.car_number);
+                  $("#carType").val(data.car_type);
+                  $("#startTime").val(data.start_time);
+
+              }
+          });
+
+
+          //监听提交：提交管理员修改学员信息
+          $("#editStudent").click(function () {
+
+              //传参补充
+              var carId =  $("#carId").val();
+              var tea_id =  $("#tea_id").val();
+              var carNumber =  $("#carNumber").val();
+              var carType =  $("#carType").val();
+              var startTime =  $("#startTime").val();
+              var data = {
+                carId: carId,
+                tea_id: tea_id,
+                carNumber: carNumber,
+                carType: carType,
+                startTime: startTime
+              };
+
+              // console.log(data);
+              $.ajax({
+                  url: ctx + "admin/editCar",
+                  type: "post",
+                  cache: false,
+                  contentType: "application/json",
+                  dataType: "json",
+                  data: JSON.stringify(data),
+                  success: function (result) {
+                      if(200==result.code){
+                          layer.alert(result.msg, {icon: 6},function () {
+                              //重新加载页面
+                              location.reload();
+                          });
+                      }else{
+                          layer.msg(result.msg, {
+                              time: 2000,
+                              btn: ['返回']
+                          });
+                      }
+                  },
+                  error: function (response) {
+                      console.log("出错返回: " + response);
+                      console.log("出错数据: " + JSON.stringify(response));
+                  }
+              });
+          });
+
+          /*用户-停用*/
+          function member_stop(obj, id) {
+              layer.confirm('确认要停用吗？', function (index) {
+
+                  if ($(obj).attr('title') == '启用') {
+
+                      //发异步把用户状态进行更改
+                      $(obj).attr('title', '停用')
+                      $(obj).find('i').html('&#xe62f;');
+
+                      $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已停用');
+                      layer.msg('已停用!', {icon: 5, time: 1000});
+
+                  } else {
+                      $(obj).attr('title', '启用')
+                      $(obj).find('i').html('&#xe601;');
+
+                      $(obj).parents("tr").find(".td-status").find('span').removeClass('layui-btn-disabled').html('已启用');
+                      layer.msg('已启用!', {icon: 5, time: 1000});
+                  }
+
+              });
+          }
+
+          /*用户-删除*/
+          function member_del(obj, id) {
+              layer.confirm('确认要删除吗？', function (index) {
+                  //发异步删除数据
+                  $(obj).parents("tr").remove();
+                  layer.msg('已删除!', {icon: 1, time: 1000});
+              });
+          }
+
+          function delAll() {
+
+              var data = tableCheck.getData();
+
+              var checkStatus=table.checkStatus('idTest');
+              // console.log(checkStatus);
+              layer.confirm('确认要删除吗？' + data, function (index) {
+                  //捉到所有被选中的，发异步进行删除
+                  layer.msg('删除成功', {icon: 1});
+                  $(".layui-form-checked").not('.header').parents('tr').remove();
+              });
+          }
+        $('#layerDemo .layui-btn').on('click', function(){
+          var othis = $(this), method = othis.data('method');
+          active[method] ? active[method].call(this, othis) : '';
+        });
+      })
+
+
+    </script>
+
+  </body>
+
+</html>

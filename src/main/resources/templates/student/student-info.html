@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="x-admin-sm" lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+  
+  <head>
+    <meta charset="UTF-8">
+    <title>学员信息</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" th:href="@{/css/font.css}">
+    <link rel="stylesheet" th:href="@{/css/xadmin.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap-theme.min.css}">
+    <script type="text/javascript" th:src="@{/js/jquery/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/lib/layui/layui.js}" charset="utf-8"></script>
+    <script type="text/javascript" th:src="@{/js/xadmin.js}"></script>
+    <script type="text/javascript" th:src="@{/js/cookie.js}"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="x-body" style="width: 650px; position: relative; left:25%;">
+        <input type="text" hidden="hidden" id="stuId" th:value="${student.stuId}"/>
+        <form class="layui-form" th:align="center">
+          <div class="layui-form-item">
+              <label for="account" class="layui-form-label">用户名
+              </label>
+              <div class="layui-input-inline">
+                  <input type="text" id="account" name="account" th:value="${student.stuAccount}" class="layui-input">
+              </div>
+              <div class="layui-form-mid layui-word-aux">
+                  <span class="x-red">*</span>可以成为您的登入名
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label for="username" class="layui-form-label">
+                  <span class="x-red">*</span>姓名
+              </label>
+              <div class="layui-input-inline">
+                  <input type="text" th:value="${student.stuName}" id="username" name="username" lay-verify="required"
+                  class="layui-input">
+              </div>
+              <div class="layui-form-mid layui-word-aux">
+                  <span class="x-red">*</span>您的真实姓名，方便与教练沟通
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label for="L_email" class="layui-form-label">
+                  <span class="x-red">*</span>邮箱
+              </label>
+              <div class="layui-input-inline">
+                  <input type="text" th:value="${student.stuEmail}" id="L_email" name="email"
+                  autocomplete="off" class="layui-input">
+              </div>
+              <div class="layui-form-mid layui-word-aux">
+                  <span class="x-red">*</span>可以成为您的登入名
+              </div>
+          </div>
+            <!--编辑个人信息可以不需要身份验证-->
+          <!--<div class="layui-form-item">
+              <div class="input-group">
+                  <label for="getCode" class="layui-form-label">
+                      <span class="x-red">*</span>验证码
+                  </label>
+                  <div class="layui-input-inline">
+                      <input type="text" id="getCode" lay-verify="required"
+                             class="layui-input" placeholder="验证码">
+                  </div>
+                  <span class="form-group input-group-btn" style="padding-bottom: 7px;float: left;padding-left: 8px;">
+                     <button class="btn btn-default" id="editGetCode" type="button">获取验证码</button>
+                  </span>
+              </div>
+          </div>-->
+          <div class="layui-form-item">
+              <label for="stuPhone" class="layui-form-label">
+                  手机号
+              </label>
+              <div class="layui-input-inline">
+                  <input type="text" id="stuPhone" name="phone" lay-verify="stuPhone" th:value="${student.stuPhone}" class="layui-input">
+              </div>
+              <!--<div class="layui-form-mid layui-word-aux">
+                  <span class="x-red">*</span>
+              </div>-->
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">
+                  </span>性别
+              </label>
+              <p ></p>
+              <div align="left">
+                  <input type="radio"  name="sex" value="1" title="男" th:checked="${(student.stuSex == 1)}? 'true' : 'false'">
+                  <input type="radio" name="sex" value="0" title="女" th:checked="${(student.stuSex == 0)}? 'true' : 'false'">
+                  <input type="radio" name="sex" value="2" title="未知" th:checked="${(student.stuSex != 1 && student.stuSex != 0)}? 'true' : 'false'">
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label for="birthday" class="layui-form-label">
+                  生日
+              </label>
+              <div class="layui-input-inline">
+                  <input type="text" class="layui-input" id="birthday" th:value="${student.stuBirthday}"  >
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label for="address" class="layui-form-label">
+                  地址
+              </label>
+              <div class="layui-input-inline">
+                  <input type="text" id="address" name="address" th:value="${student.stuAddress}"  class="layui-input">
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label for="L_pass" class="layui-form-label">
+                  <span class="x-red">*</span>密码
+              </label>
+              <div class="layui-input-inline">
+                  <input type="password" id="L_pass" name="pass" lay-verify="pass"
+                  autocomplete="off" class="layui-input" placeholder="密码">
+              </div>
+              <div class="layui-form-mid layui-word-aux">
+                  6到16个字符
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label for="L_repass" class="layui-form-label">
+                  <span class="x-red">*</span>确认
+              </label>
+              <div class="layui-input-inline">
+                  <input type="password" id="L_repass" name="repass" lay-verify="repass"
+                  autocomplete="off" class="layui-input" placeholder="确认密码">
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <div class="layui-input-inline">
+                  <button  class="layui-btn" lay-filter="add" lay-submit="">
+                      修改
+                  </button>
+              </div>
+          </div>
+      </form>
+    </div>
+    <script th:src="@{/js/driversystem/common/mailCode.js}"></script>
+    <script th:src="@{/js/driversystem/common/verifyInput.js}"></script>
+    <script th:inline="javascript">
+        var ctx = [[@{/}]]
+    </script>
+    <script>
+
+        //时间选择器
+        layui.use('laydate', function() {
+            var laydate = layui.laydate;
+            //常规用法
+            laydate.render({
+                elem: '#birthday',
+                trigger: 'click'
+            });
+        });
+
+        layui.use(['form','layer'], function(){
+          var form = layui.form
+          ,layer = layui.layer;
+        
+          //自定义验证规则
+          form.verify({
+            pass: [/(.+){6,12}$/, '密码必须6到12位']
+            ,repass: function(value){
+                if($('#L_pass').val()!=$('#L_repass').val()){
+                    return '两次密码不一致';
+                }
+            }
+            ,stuPhone: function(value) {
+                var phone = $('#stuPhone').val();
+                if($.trim($("#name").val()).length != 0) {
+                    if(!(/^1[3456789]\d{9}$/.test(phone))){
+                        return "手机号码有误，请重填";
+                    }
+                }
+              }
+          });
+
+          //监听提交
+          form.on('submit(add)', function(data){
+
+              var stuAccount = $("#account").val();
+              var stuEmail = $("#L_email").val();
+              console.log(stuAccount);
+              console.log(stuEmail);
+              //对用户名和邮箱进行判断，不能都为空
+              if(stuAccount == '' && stuEmail == '') {
+                  layer.msg('用户名和邮箱不能同时为空！', {
+                      time: 2000, //2s后自动关闭
+                  });
+                  return false;
+              }
+
+              //验证邮箱格式
+              if(stuEmail != null && stuEmail != '') {
+                if(!checkEmail(stuEmail)) {layer.msg('邮箱格式不正确！', {
+                    time: 2000, //2s后自动关闭
+                });
+
+                    return false;
+                }
+              }
+
+            var data = {stuId:$("#stuId").val(),
+                stuAccount:$("#account").val(),
+                stuName:$("#username").val(),
+                stuEmail:$("#L_email").val(),
+                stuPhone:$("#stuPhone").val(),
+                stuSex:$("input[name='sex']:checked").val(),
+                stuBirthday:$("#birthday").val(),
+                stuAddress:$("#address").val(),
+                stuPwd:$("#L_pass").val(),
+            };
+
+              console.log(data);
+
+              //修改个人信息
+              $.ajax({
+                  type: "POST",
+                  url: ctx + "student/editStudentInfo",
+                  data: JSON.stringify(data),
+                  // data: data,
+                  dataType: "json",
+                  contentType:"application/json",
+                  success: function(result){
+                      if(200==result.code){
+                           layer.alert(result.msg, {icon: 6},function () {
+                              // 获得frame索引
+                              var index = parent.layer.getFrameIndex(window.name);
+                              //关闭当前frame
+                              parent.layer.close(index);
+                              //重新加载页面
+                              parent.location.reload();
+                          });
+                      }else{
+                          layer.alert(result.msg, {icon: 5},function (index) {
+                              layer.close(index);
+                          });
+                      }
+                  }
+              });
+            return false;
+          });
+
+        });
+    </script>
+  </body>
+
+</html>

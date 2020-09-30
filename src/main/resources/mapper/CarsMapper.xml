@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.llb.mapper.CarsMapper">
+
+    <!--查询所有车辆(分页)-->
+    <select id="carList" resultType="Map" parameterType="String">
+        SELECT c.car_id, t.tea_account, t.tea_name, t.tea_email, c.car_number,  DATE_FORMAT(c.car_productDate,'%Y-%m-%d %H:%i:%S') as car_productDate,
+        c.car_type, DATE_FORMAT(c.start_time,'%Y-%m-%d %H:%i:%S') as start_time
+        FROM cars c, teacher t
+        WHERE c.tea_id = t.tea_id
+            <if test="account != null">
+                and c.car_number like concat('%',#{account},'%')
+            </if>
+    </select>
+
+
+    <!--删除车辆-->
+    <select id="deleteCar" parameterType="String">
+        DELETE
+        FROM cars
+        WHERE car_id = #{carId}
+    </select>
+
+    <!--根据id修改车辆信息-->
+    <update id="editCar" parameterType="Student">
+        UPDATE cars
+        <trim prefix="set" suffixOverrides=",">
+            <if test="teaId!=null">tea_id=#{teaId},</if>
+            <if test="carNumber!=null">car_number=#{carNumber},</if>
+            <if test="carType!=null">car_type=#{carType},</if>
+            <if test="startTime!=null">start_time=#{startTime},</if>
+        </trim>
+        WHERE car_id = #{carId}
+    </update>
+
+    <!--保存车辆信息-->
+    <insert id="saveCar" parameterType="Cars">
+        INSERT INTO cars
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="carId != null and carId != ''">
+                car_id,
+            </if>
+            <if test="teaId != null and teaId != ''">
+                tea_id,
+            </if>
+            <if test="carNumber != null and carNumber != ''">
+                car_number,
+            </if>
+            <if test="carProductDate != null and carProductDate != ''">
+                car_productDate,
+            </if>
+            <if test="carType != null and carType != ''">
+                car_type,
+            </if>
+            <if test="startTime != null and startTime != ''">
+                start_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="carId != null and carId != ''">
+                #{carId},
+            </if>
+            <if test="teaId != null and teaId != ''">
+                #{teaId},
+            </if>
+            <if test="carNumber != null and carNumber != ''">
+                #{carNumber},
+            </if>
+            <if test="carProductDate != null and carProductDate != ''">
+                #{carProductDate},
+            </if>
+            <if test="carType != null and carType != ''">
+                #{carType},
+            </if>
+            <if test="startTime != null and startTime != ''">
+                #{startTime},
+            </if>
+        </trim>
+    </insert>
+</mapper>

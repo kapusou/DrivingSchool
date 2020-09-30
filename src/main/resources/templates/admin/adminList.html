@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html class="x-admin-sm" lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+  
+  <head>
+    <meta charset="UTF-8">
+    <title>管理员</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" th:href="@{/css/font.css}">
+    <link rel="stylesheet" th:href="@{/css/xadmin.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script type="text/javascript" th:src="@{/js/jquery/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/lib/layui/layui.js}" charset="utf-8"></script>
+    <script type="text/javascript" th:src="@{/js/xadmin.js}"></script>
+    <script type="text/javascript" th:src="@{/js/cookie.js}"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <!--<a href="">首页</a>-->
+        <!--<a href="">演示</a>-->
+      </span>
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+    </div>
+    <div class="x-body">
+      <!--<input type="text" hidden="hidden" id="stuId" th:value="${session.student.stuId}"/>-->
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so" action="javascript:;">
+            <input type="text" name="account" id="account" placeholder="请输入账号" autocomplete="off" class="layui-input">
+            <button class="layui-btn"  lay-submit="" lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+
+      <!--表格显示-->
+      <table class="layui-hide" id="adminList" lay-filter="adminList"></table>
+
+      <!--表格上方操作-->
+      <script type="text/html" id="complain_toolbar">
+        <div class="layui-btn-container" id="layerDemo">
+          <button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delBatchAll"><i class="layui-icon"></i>批量删除</button>
+          <button class="layui-btn layui-btn-sm" data-method="notice" lay-event="add"><i class="layui-icon"></i>添加</button>
+        </div>
+      </script>
+      <!--表格下方操作-->
+      <script type="text/html" id="operateTable">
+        <!--<a class="layui-btn layui-btn-xs" lay-event="detail" >查看</a>-->
+        <a class="layui-btn layui-btn-xs" lay-event="edit" data-toggle="modal" data-target="#editAdminInfo" >编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del" >删除</a>
+      </script>
+    </div>
+
+    <!-- 编辑管理员信息 -->
+    <div class="modal" id="editAdminInfo" tabindex="-1" role="dialog" aria-labelledby="editAdminInfoModal" aria-hidden="true"
+         data-backdrop="static" data-keyboard="false">
+      <div class="modal-dialog " style=" width: 400px">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+              &times;
+            </button>
+            <h4 class="modal-title" id="editAdminInfoModal">
+              修改管理员信息
+            </h4>
+          </div>
+          <div class="modal-body">
+            <input type="text" hidden="hidden" id="adminId"/>
+            <div class="layui-form-item">
+              <label class="layui-form-label">账号:</label>
+              <div class="layui-input-block">
+                <input id="adminAccount" type="text" name="adminAccount" placeholder="请输入账号" class="layui-input">
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <label class="layui-form-label">邮箱:</label>
+              <div class="layui-input-block">
+                <input id="adminEmail" type="text" name="adminEmail" placeholder="请输入邮箱" class="layui-input">
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <label class="layui-form-label">密码:</label>
+              <div class="layui-input-block">
+                <input id="adminPwd" type="password" name="adminPwd" placeholder="请输入密码" class="layui-input">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="editAdmin" type="button" class="layui-btn layui-btn-primary"
+                    data-toggle="stuContentModal" data-dismiss="modal" data-target="#editAdminInfoModal">
+              修改
+            </button>
+            <button type="button" class="layui-btn layui-btn-primary" data-dismiss="modal">
+              取消
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <script th:src="@{/lib/layui/layui.js}" charset="utf-8"></script>
+    <script th:src="@{/js/driversystem/common/verifyInput.js}"></script>
+    <script th:inline="javascript">
+      var ctx = [[@{/}]]
+    </script>
+    <script type="text/javascript" th:inline="none">
+      layui.use(['laydate', 'form', 'table','layer'], function() {
+          var form = layui.form,
+              table = layui.table,
+              layer = layui.layer;
+
+        var active = {
+          notice: function() {
+            //示范一个公告层
+           var index = layer.open({
+              type: 1//0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层)
+              ,title: "添加管理员信息" //不显示标题栏
+              ,closeBtn: false
+              ,area: ['500px','450px']//定义宽高
+              ,shade: 0.8//遮幕
+              ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
+              ,btn: ['保存', '取消']
+              ,btnAlign: 'c'//按钮排列：居中对齐
+              ,moveType: 1 //拖拽模式，0或者1
+              ,content: "<div class=\"modal-body\">\n" +
+                      "            <div class=\"layui-form-item\">\n" +
+                      "              <label class=\"layui-form-label\">账号:</label>\n" +
+                      "              <div class=\"layui-input-block\">\n" +
+                      "                <input id=\"adminAccount1\" type=\"text\" name=\"addAccount\" placeholder=\"请输入账号\" class=\"layui-input\" autocomplete=\"off\">\n" +
+                      "              </div>\n" +
+                      "            </div>\n" +
+                      "            <div class=\"layui-form-item\">\n" +
+                      "              <label class=\"layui-form-label\">邮箱:</label>\n" +
+                      "              <div class=\"layui-input-block\">\n" +
+                      "                <input id=\"adminEmail1\" type=\"text\" name=\"addAdminEmail\" placeholder=\"请输入邮箱\" class=\"layui-input\" autocomplete=\"off\">\n" +
+                      "              </div>\n" +
+                      "            </div>\n" +
+                      "            <div class=\"layui-form-item\">\n" +
+                      "              <label class=\"layui-form-label\">密码:</label>\n" +
+                      "              <div class=\"layui-input-block\">\n" +
+                      "                <input id=\"adminPwd1\" type=\"password\" name=\"addAdminPwd\" placeholder=\"请输入密码\" class=\"layui-input\" autocomplete=\"off\">\n" +
+                      "              </div>\n" +
+                      "            </div>\n" +
+                      "          </div>"
+              ,
+              yes: function (index, layero) {
+                console.log('yes');
+               var adminAccount = $("#adminAccount1").val();
+               var adminEmail = $("#adminEmail1").val();
+               var adminPwd = $("#adminPwd1").val();
+               var data = {adminAccount:adminAccount,adminMail:adminEmail,adminPwd:adminPwd};
+                console.log(data)
+                var flag = checkEmail(adminEmail);
+                if (!flag){
+                  layer.close(index);
+                  layer.msg('邮箱格式不正确', {
+                    time: 2000,
+                    btn: ['返回']
+                  });
+                }else{
+                $.ajax({
+                  type: "post",
+                  url: ctx + "admin/addAdmin",
+                  data:JSON.stringify(data),
+                  dataType: "json",
+                  contentType:"application/json",
+                  success: function (result) {
+                    layer.msg(result.msg, {
+                      time: 2000,
+                      btn: ['返回']
+                    });
+                  },
+                  error: function (response) {
+                    console.log("出错返回: " + response);
+                    console.log("出错数据: " + JSON.stringify(response));
+                  }
+                })
+                layer.close(index);
+                //重新加载页面
+                location.reload();
+                }
+              },
+              btn2: function (index, layero) {
+                console.log('btn2');
+              }
+            })
+          }}
+
+          //渲染表格
+          table.render({
+              elem: '#adminList',
+              // where: {stuId: stuId},
+              url: ctx + 'admin/findAllAdmin',
+              limits: [5, 10, 20, 30, 40, 50, 60, 70, 80, 90],
+              toolbar: '#complain_toolbar', //开启头部工具栏，并为其绑定左侧模板
+              response: {
+                  statusCode: 200, //成功的状态码，默认：0
+                  statusName: 'code',// 对应 code
+                  msgName: 'msg', // 对应 msg
+                  countName: 'count', // 对应 count
+                  dataName: 'data'  // 对应 data
+              }
+              , cols: [[
+                  {type: 'checkbox'},
+                  {field: 'admin_id', title: 'id', hide: true},    //hide:true    隐藏列
+                  {field: 'admin_account', title: '账号'},
+                  {field: 'admin_mail', title: '邮箱'},
+                  {field: 'admin_pwd', title: '密码', templet:function(d)
+                    {
+                      if (d.admin_pwd.length == 0) {
+                      } else {
+                        return '******';
+                      }
+                    }
+                    },    //TODO：密码列后期会使用md5进行加密，所以此列暂时暴露
+                  {field: 'admin_createdate', title: '创建时间', sort: true},
+                  {fixed: 'right', title: '操作', toolbar: '#operateTable'}
+              ]]
+              , page: true
+          });
+          //搜索按钮事件
+          form.on('submit(search)', function (data) {
+
+              table.reload('adminList', {
+                  where: data.field,
+                  page: {
+                      curr: 1 //重新从第 1 页开始
+                  }
+              });
+          });
+
+          //头工具栏事件
+          table.on('toolbar(adminList)', function(obj){
+              var checkStatus = table.checkStatus(obj.config.id);
+
+              switch(obj.event){
+                  case 'delBatchAll':
+                      if(checkStatus.data.length==0){
+                          parent.layer.msg('请先选择要删除的数据行！', {icon: 2});
+                          return ;
+                      }
+                      //获得选中的id
+                      var adminIds = "";
+                      for(var i=0;i<checkStatus.data.length;i++){
+                          adminIds += checkStatus.data[i].admin_id+",";
+                      }
+                      parent.layer.msg('删除中...', {icon: 16,shade: 0.3,time:500});
+
+                      var data={adminIds:adminIds};
+                      $.ajax({
+                          url: ctx + "admin/deleteBatchAdmin",
+                          type: "post",
+                          cache: false,
+                          contentType: "application/json",
+                          datatype: "json",
+                          data: JSON.stringify(data),
+                          success: function (result) {
+                              if(200==result.code){
+                                  layer.alert(result.msg, {icon: 6},function () {
+                                      //重新加载页面
+                                      location.reload();
+                                  });
+                              }else{
+                                  layer.msg(result.msg, {
+                                      time: 2000,
+                                      btn: ['返回']
+                                  });
+                              }
+                          },
+                          error: function (response) {
+                              console.log("出错返回: " + response);
+                              console.log("出错数据: " + JSON.stringify(response));
+                          }
+                      });
+                      break;
+                  case 'add':
+
+                      break;
+
+                  /*case 'getCheckData':
+                      var data = checkStatus.data;
+                      layer.alert(JSON.stringify(data));
+                      break;
+                  case 'getCheckLength':
+                      var data = checkStatus.data;
+                      layer.msg('选中了：'+ data.length + ' 个');
+                      break;
+                  case 'isAll':
+                      layer.msg(checkStatus.isAll ? '全选': '未全选');
+                      break;
+
+                  //自定义头工具栏右侧图标 - 提示
+                  case 'LAYTABLE_TIPS':
+                      layer.alert('这是工具栏右侧自定义的一个图标按钮');
+                      break;*/
+              };
+          });
+
+          //监听工具条
+          table.on('tool(adminList)', function (obj) {
+              var data = obj.data;
+
+              // console.log(data);
+
+              if (obj.event === 'del') {
+                  layer.confirm('真的删除该条数据吗？', function (index) {
+                      // obj.del();
+                      var adminId = data.admin_id;
+                      //删除行数据
+                      $.ajax({
+                          url: ctx + "admin/deleteAdmin",
+                          type: "post",
+                          cache: false,
+                          contentType: "application/json",
+                          datatype: "json",
+                          data: adminId,
+                          success: function (result) {
+                              if(200==result.code){
+                                  layer.alert(result.msg, {icon: 6},function () {
+                                      // 获得frame索引
+                                      var index = parent.layer.getFrameIndex(window.name);
+                                      //关闭当前frame
+                                      parent.layer.close(index);
+                                      //重新加载页面
+                                      parent.location.reload();
+                                  });
+                              }else{
+                                  layer.alert(result.msg, {icon: 5},function (index) {
+                                      layer.close(index);
+                                  });
+                              }
+                          },
+                          error: function (response) {
+                              console.log("出错返回: " + response);
+                              console.log("出错数据: " + JSON.stringify(response));
+                          }
+                      });
+                      layer.close(index);
+                  });
+              } else if (obj.event === 'edit') {
+
+                  console.log(data);
+
+                  //参数传到模态框
+                  $("#adminId").val(data.admin_id);
+                  $("#adminAccount").val(data.admin_account);
+                  $("#adminEmail").val(data.admin_mail);
+                  $("#adminPwd").val(data.admin_pwd);
+
+              }
+          });
+
+          //监听提交
+          $("#editAdmin").click(function () {
+
+              console.log(111);
+
+              //传参补充
+              var adminId = $("#adminId").val();
+              var adminAccount = $("#adminAccount").val();
+              var adminEmail =  $("#adminEmail").val();
+              var adminPwd = $("#adminPwd").val();
+              var data = {
+                  adminId: adminId,
+                  adminAccount: adminAccount,
+                  adminMail: adminEmail,
+                  adminPwd: adminPwd
+              };
+
+              $.ajax({
+                  url: ctx + "admin/editAdmin",
+                  type: "post",
+                  cache: false,
+                  contentType: "application/json",
+                  dataType: "json",
+                  data: JSON.stringify(data),
+                  success: function (result) {
+                      if(200==result.code){
+                          layer.alert(result.msg, {icon: 6},function () {
+                              //重新加载页面
+                              location.reload();
+                          });
+                      }else{
+                          layer.msg(result.msg, {
+                              time: 2000,
+                              btn: ['返回']
+                          });
+                      }
+                  },
+                  error: function (response) {
+                      console.log("出错返回: " + response);
+                      console.log("出错数据: " + JSON.stringify(response));
+                  }
+              });
+          });
+
+          $("#test").click(function(){
+              hello("张三");
+          });
+
+          /*用户-停用*/
+          function member_stop(obj, id) {
+              layer.confirm('确认要停用吗？', function (index) {
+
+                  if ($(obj).attr('title') == '启用') {
+
+                      //发异步把用户状态进行更改
+                      $(obj).attr('title', '停用')
+                      $(obj).find('i').html('&#xe62f;');
+
+                      $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已停用');
+                      layer.msg('已停用!', {icon: 5, time: 1000});
+
+                  } else {
+                      $(obj).attr('title', '启用')
+                      $(obj).find('i').html('&#xe601;');
+
+                      $(obj).parents("tr").find(".td-status").find('span').removeClass('layui-btn-disabled').html('已启用');
+                      layer.msg('已启用!', {icon: 5, time: 1000});
+                  }
+
+              });
+          }
+
+          /*用户-删除*/
+          function member_del(obj, id) {
+              layer.confirm('确认要删除吗？', function (index) {
+                  //发异步删除数据
+                  $(obj).parents("tr").remove();
+                  layer.msg('已删除!', {icon: 1, time: 1000});
+              });
+          }
+
+          function delAll() {
+
+              var data = tableCheck.getData();
+
+              var checkStatus=table.checkStatus('idTest');
+              console.log(checkStatus);
+              layer.confirm('确认要删除吗？' + data, function (index) {
+                  //捉到所有被选中的，发异步进行删除
+                  layer.msg('删除成功', {icon: 1});
+                  $(".layui-form-checked").not('.header').parents('tr').remove();
+              });
+          }
+        $('#layerDemo .layui-btn').on('click', function(){
+          var othis = $(this), method = othis.data('method');
+          active[method] ? active[method].call(this, othis) : '';
+        });
+      })
+
+
+    </script>
+  </body>
+
+</html>

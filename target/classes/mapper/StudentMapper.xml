@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.llb.mapper.StudentMapper">
+    <!--通过用户名或邮箱查找学员-->
+    <select id="findStudent" resultType="com.llb.entity.Student" parameterType="String">
+        SELECT s.stu_id, s.stu_account , s.stu_name, s.stu_email, s.stu_pwd, s.stu_sex, DATE_FORMAT(s.stu_birthday,'%Y-%m-%d') as stu_birthday,
+         s.stu_address, s.stu_phone, DATE_FORMAT(s.stu_createdate,'%Y-%m-%d %H:%i:%S') as stu_createDate
+        FROM student s
+        WHERE s.stu_account = #{account} OR s.stu_email = #{email}
+    </select>
+
+    <!--通过id查找学员-->
+    <select id="findStudentById" resultType="com.llb.entity.Student" parameterType="String">
+        SELECT s.stu_id, s.stu_account , s.stu_name, s.stu_email, s.stu_pwd, s.stu_sex, DATE_FORMAT(s.stu_birthday,'%Y-%m-%d') as stu_birthday,
+        s.stu_address, s.stu_phone, DATE_FORMAT(s.stu_createdate,'%Y-%m-%d %H:%i:%S') as stu_createDate
+        FROM student s
+        WHERE s.stu_id = #{stuId}
+    </select>
+
+    <!--通过教练id查找学员-->
+    <select id="findTeachertwoById" resultType="com.llb.entity.Student" parameterType="String">
+        SELECT s.stu_id, s.stu_account , s.stu_name, s.stu_email, s.stu_pwd, s.stu_sex, DATE_FORMAT(s.stu_birthday,'%Y-%m-%d') as stu_birthday,
+        s.stu_address, s.stu_phone,s.stu_two, DATE_FORMAT(s.stu_createdate,'%Y-%m-%d %H:%i:%S') as stu_createDate
+        FROM student s
+        WHERE s.stu_two = #{teaId}
+        <if test="stu_name != null and stu_name != ''">
+        and s.stu_name like concat('%',#{stu_name},'%')
+        </if>
+        <if test="start_time != null">
+        and s.stu_createDate &lt; #{End_time}
+        and s.stu_createDate &gt; #{start_time}
+        </if>
+    </select>
+
+    <!--通过用户名和邮箱查找学员-->
+    <select id="findStuByAccAndMail" resultType="com.llb.entity.Student" parameterType="String">
+        SELECT s.stu_id, s.stu_account , s.stu_name, s.stu_email, s.stu_pwd, s.stu_sex, DATE_FORMAT(s.stu_birthday,'%Y-%m-%d') as stu_birthday,
+         s.stu_address, s.stu_phone, DATE_FORMAT(s.stu_createdate,'%Y-%m-%d %H:%i:%S') as stu_createDate
+        FROM student s
+        WHERE s.stu_account = #{account} AND s.stu_email = #{email}
+    </select>
+
+    <!--通过邮箱查找学员-->
+    <select id="findStuByEmail" resultType="Student" parameterType="String">
+        SELECT s.stu_id, s.stu_account , s.stu_name, s.stu_email, s.stu_pwd, s.stu_sex, DATE_FORMAT(s.stu_birthday,'%Y-%m-%d') as stu_birthday,
+         s.stu_address, s.stu_phone, DATE_FORMAT(s.stu_createdate,'%Y-%m-%d %H:%i:%S') as stu_createDate
+        FROM student s
+        WHERE s.stu_email = #{stuEmail}
+    </select>
+
+    <!--修改密码-->
+    <update id="updateStuPwd" parameterType="String">
+        UPDATE student
+        SET stu_pwd = #{stuPwd}
+        WHERE stu_email = #{stuEmail}
+    </update>
+
+    <!--保存学员信息-->
+    <insert id="saveStudent" parameterType="Student">
+        INSERT INTO student
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="stuId != null">
+                stu_id,
+            </if>
+            <if test="stuAccount != null">
+                stu_account,
+            </if>
+            <if test="stuName != null">
+                stu_name,
+            </if>
+            <if test="stuEmail != null">
+                stu_email,
+            </if>
+            <if test="stuPwd != null">
+                stu_pwd,
+            </if>
+            <if test="stuSex != null">
+                stu_sex,
+            </if>
+            <if test="stuBirthday != null and stuBirthday != ''">
+                stu_birthday,
+            </if>
+            <if test="stuAddress != null">
+                stu_address,
+            </if>
+            <if test="stuPhone != null">
+                stu_phone,
+            </if>
+            <if test="stuCreatedate != null">
+                stu_createdate,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="stuId != null">
+                #{stuId},
+            </if>
+            <if test="stuAccount != null">
+                #{stuAccount},
+            </if>
+            <if test="stuName != null">
+                #{stuName},
+            </if>
+            <if test="stuEmail != null">
+                #{stuEmail},
+            </if>
+            <if test="stuPwd != null">
+                #{stuPwd},
+            </if>
+            <if test="stuSex != null">
+                #{stuSex},
+            </if>
+            <if test="stuBirthday != null and stuBirthday != '' ">
+                #{stuBirthday},
+            </if>
+            <if test="stuAddress != null">
+                #{stuAddress},
+            </if>
+            <if test="stuPhone != null">
+                #{stuPhone},
+            </if>
+            <if test="stuCreatedate != null">
+                STR_TO_DATE(#{stuCreatedate},'%Y-%m-%d %H:%i:%s'),
+            </if>
+        </trim>
+    </insert>
+
+    <!--根据id修改学员信息-->
+    <update id="editStudent" parameterType="Student">
+        UPDATE student
+        <trim prefix="set" suffixOverrides=",">
+          <if test="stuAccount!=null">stu_account=#{stuAccount},</if>
+          <if test="stuName!=null">stu_name=#{stuName},</if>
+          <if test="stuEmail!=null">stu_email=#{stuEmail},</if>
+          <if test="stuPwd!=null">stu_pwd=#{stuPwd},</if>
+          <if test="stuSex!=null">stu_sex=#{stuSex},</if>
+          <if test="stuBirthday!=null">stu_birthday=#{stuBirthday},</if>
+          <if test="stuAddress!=null">stu_address=#{stuAddress},</if>
+          <if test="stuTwo!=null">stu_two=#{stuTwo},</if>
+          <if test="stuThree!=null">stu_three=#{stuThree},</if>
+        </trim>
+        WHERE stu_id = #{stuId}
+    </update>
+
+    <!--查询所有学员(分页)-->
+    <select id="studentList" resultType="Map" parameterType="String">
+        SELECT s.stu_id, s.stu_account , s.stu_name, s.stu_email, s.stu_pwd, s.stu_sex, DATE_FORMAT(s.stu_birthday,'%Y-%m-%d') as stu_birthday,
+         s.stu_address, s.stu_phone, DATE_FORMAT(s.stu_createdate,'%Y-%m-%d %H:%i:%S') as stu_createDate
+        FROM student s
+        <where>
+            <if test="stuAccount != null">
+                s.stu_account like concat('%',#{stuAccount},'%')
+            </if>
+        </where>
+    </select>
+
+    <!--删除学员-->
+    <select id="deleteStudent" parameterType="String">
+        DELETE
+        FROM student
+        WHERE stu_id = #{stuId}
+    </select>
+</mapper>

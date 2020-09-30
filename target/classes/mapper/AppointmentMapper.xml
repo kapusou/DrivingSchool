@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.llb.mapper.AppointmentMapper">
+
+    <!--保存学员预约信息-->
+    <insert id="saveAppointMent" parameterType="Appointment">
+        INSERT INTO appointment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="stuId != null">
+                stu_id,
+            </if>
+            <if test="teaId != null">
+                tea_id,
+            </if>
+            <if test="subject != null">
+                subject,
+            </if>
+            <if test="appointmentStart != null">
+                appointment_start,
+            </if>
+            <if test="appointmentEnd != null">
+                appointment_end,
+            </if>
+            <if test="boardingTime != null">
+                boarding_time,
+            </if>
+            <if test="alightingTime != null">
+                alighting_time,
+            </if>
+            <if test="stuStar != null">
+                stu_star,
+            </if>
+            <if test="stuContent != null">
+                stu_content,
+            </if>
+            <if test="teaContent != null">
+                tea_content,
+            </if>
+            <if test="appointmentFlag != null">
+                appointment_flag,
+            </if>
+                create_date,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="stuId != null">
+                #{stuId},
+            </if>
+            <if test="teaId != null">
+                #{teaId},
+            </if>
+            <if test="subject != null">
+                #{subject},
+            </if>
+            <if test="appointmentStart != null">
+                #{appointmentStart},
+            </if>
+            <if test="appointmentEnd != null">
+                #{appointmentEnd},
+            </if>
+            <if test="boardingTime != null">
+                #{boardingTime},
+            </if>
+            <if test="alightingTime != null">
+                #{alightingTime},
+            </if>
+            <if test="stuStar != null">
+                #{stuStar},
+            </if>
+            <if test="stuContent != null">
+                #{stuContent},
+            </if>
+            <if test="teaContent != null">
+                #{teaContent},
+            </if>
+            <if test="appointmentFlag != null">
+                #{appointmentFlag},
+            </if>
+                now(),
+        </trim>
+    </insert>
+
+    <!--根据学员id查找预约记录(分页查询)-->
+    <select id="findAppointByStuId" parameterType="String" resultType="Map">
+        SELECT a.id,
+        t.tea_id,
+        t.tea_name,
+        a.subject,
+        DATE_FORMAT(a.appointment_start,'%Y-%m-%d %H:%i:%s') as appointment_start,
+        DATE_FORMAT(a.appointment_end,'%Y-%m-%d %H:%i:%s') as appointment_end,
+        DATE_FORMAT(a.boarding_time,'%Y-%m-%d %H:%i:%s') as boarding_time,
+        DATE_FORMAT(a.alighting_time,'%Y-%m-%d %H:%i:%s') as alighting_time,
+        a.stu_star,
+        a.stu_content,
+        a.tea_content,
+        a.appointment_flag,
+        DATE_FORMAT(a.create_date,'%Y-%m-%d %H:%i:%s') as create_date
+        FROM appointment a LEFT JOIN teacher t
+        ON a.tea_id = t.tea_id
+        WHERE stu_id = #{stuId}
+        <if test="appointmentStart!=null and appointmentStart!=''">
+            <![CDATA[
+				AND	DATE_FORMAT(a.appointment_start, '%Y-%m-%d')>= DATE_FORMAT(#{appointmentStart}, '%Y-%m-%d')
+			]]>
+        </if>
+        <if test="appointmentEnd!=null and appointmentEnd!=''">
+            <![CDATA[
+				AND	DATE_FORMAT(a.appointment_end, '%Y-%m-%d')<= DATE_FORMAT(#{appointmentEnd}, '%Y-%m-%d')
+			]]>
+        </if>
+        <if test="subject!=null and subject!=''">
+            AND a.subject=#{subject}
+        </if>
+        <if test="teaName!=null and teaName!=''">
+            AND t.teaName=#{teaName}
+        </if>
+        ORDER BY a.create_date DESC
+    </select>
+    
+    <!--根据教练id查找预约记录(分页查询)-->
+    <select id="appointment_teaId" parameterType="String" resultType="Map">
+        SELECT a.id,
+        a.stu_id,
+        (select s.stu_name from student s where s.stu_id=a.stu_id) as stu_name,
+        a.subject,
+        DATE_FORMAT(a.appointment_start, '%Y-%m-%d') appointment_start,
+        DATE_FORMAT(a.appointment_end, '%Y-%m-%d') appointment_end,
+        a.boarding_time,
+        a.alighting_time,
+        a.stu_star,
+        a.stu_content,
+        a.tea_content,
+        a.appointment_flag,
+        a.create_date
+        FROM appointment a 
+        WHERE a.tea_id = #{teaId}
+        <if test="appointmentStart!=null and appointmentStart!=''">
+            <![CDATA[
+				AND	DATE_FORMAT(a.appointment_start, '%Y-%m-%d') >= DATE_FORMAT(#{appointmentStart}, '%Y-%m-%d')
+			]]>
+        </if>
+        <if test="appointmentEnd!=null and appointmentEnd!=''">
+            <![CDATA[
+				AND	DATE_FORMAT(a.appointment_end, '%Y-%m-%d') <= DATE_FORMAT(#{appointmentEnd}, '%Y-%m-%d')
+			]]>
+        </if>
+        ORDER BY a.create_date DESC
+    </select>
+
+    <!--取消预约：修改预约状态-->
+    <update id="editAppointFlag">
+      UPDATE appointment
+      SET appointment_flag = #{appointmentFlag}
+      WHERE id = #{id}
+    </update>
+
+    <!--根据id来查询预约记录-->
+    <select id="findApponitById" parameterType="String" resultType="Appointment">
+        SELECT a.id, a.stu_id, t.tea_id, t.tea_name, a.subject,
+        DATE_FORMAT(a.appointment_start,'%Y-%m-%d %H:%i:%s') as appointment_start,
+        DATE_FORMAT(a.appointment_end,'%Y-%m-%d %H:%i:%s') as appointment_end,
+        DATE_FORMAT(a.boarding_time,'%Y-%m-%d %H:%i:%s') as boarding_time,
+        DATE_FORMAT(a.alighting_time,'%Y-%m-%d %H:%i:%s') as alighting_time,
+          a.stu_star, a.stu_content,
+        a.tea_content, a.appointment_flag,
+        DATE_FORMAT(a.create_date,'%Y-%m-%d %H:%i:%s') as create_date
+        FROM appointment a LEFT JOIN teacher t
+        ON a.tea_id = t.tea_id
+        WHERE a.id = #{id}
+    </select>
+
+    <!--根据id修改学员信息-->
+    <update id="editAppoint" parameterType="Appointment">
+        UPDATE appointment
+        <trim prefix="set" suffixOverrides=",">
+            <if test="stuId!=null">stu_id=#{stuId},</if>
+            <if test="teaId!=null">tea_id=#{teaId},</if>
+            <if test="subject!=null">subject=#{subject},</if>
+            <if test="appointmentStart!=null">appointment_start=#{appointmentStart},</if>
+            <if test="appointmentEnd!=null">appointment_end=#{appointmentEnd},</if>
+            <if test="boardingTime!=null">boarding_time=#{boardingTime},</if>
+            <if test="alightingTime!=null">alighting_time=#{alightingTime},</if>
+            <if test="stuStar!=null">stu_star=#{stuStar},</if>
+            <if test="stuContent!=null">stu_content=#{stuContent},</if>
+            <if test="teaContent!=null">tea_content=#{teaContent},</if>
+            <if test="appointmentFlag!=null">appointment_flag=#{appointmentFlag},</if>
+        </trim>
+        WHERE id = #{id}
+    </update>
+</mapper>

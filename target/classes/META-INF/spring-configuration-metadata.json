@@ -1,0 +1,29 @@
+{
+  "groups": [
+    {
+      "name": "spring.redis",
+      "type": "com.llb.entity.RedisConn",
+      "sourceType": "com.llb.entity.RedisConn"
+    }
+  ],
+  "properties": [
+    {
+      "name": "spring.redis.host",
+      "type": "java.lang.String",
+      "sourceType": "com.llb.entity.RedisConn"
+    },
+    {
+      "name": "spring.redis.port",
+      "type": "java.lang.Integer",
+      "sourceType": "com.llb.entity.RedisConn",
+      "defaultValue": 0
+    },
+    {
+      "name": "spring.redis.timeout",
+      "type": "java.lang.Integer",
+      "sourceType": "com.llb.entity.RedisConn",
+      "defaultValue": 0
+    }
+  ],
+  "hints": []
+}
